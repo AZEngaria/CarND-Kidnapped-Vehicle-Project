@@ -43,11 +43,12 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
         p.theta = dist_theta(gen);
 		//p.theta = p.theta % (2 * pi);
 		p.id = i;
-		p.weight = 1;
+		p.weight = 1.0;
 		particles.push_back(p);
-		weights.push_back(1);
+		weights.push_back(1.0);
 	}
 	is_initialized = true;
+	cout<<"Particles Initialized "<<endl;
 	return;
 	
 }
@@ -109,6 +110,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 			}
 		}
 		observations[index].id = predicted[i].id;
+		
 	}
 
 }
@@ -146,10 +148,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		std::vector<LandmarkObs> MapLandmarks;		
 		LandmarkObs MapLandmark;
 		
-		for(int i=0; i< map_landmarks.landmark_list.size(); i++){
-			MapLandmark.x = map_landmarks.landmark_list[i].x_f;
-			MapLandmark.y = map_landmarks.landmark_list[i].y_f;
-			MapLandmark.id = map_landmarks.landmark_list[i].id_i;
+		for(int j=0; j< map_landmarks.landmark_list.size(); j++){
+			MapLandmark.x = map_landmarks.landmark_list[j].x_f;
+			MapLandmark.y = map_landmarks.landmark_list[j].y_f;
+			MapLandmark.id = map_landmarks.landmark_list[j].id_i;
 			if(dist(p.x, p.y, MapLandmark.x, MapLandmark.y) <= sensor_range)
 				MapLandmarks.push_back(MapLandmark);
 		}
@@ -167,13 +169,14 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		double weight;
 		double gauss_norm;
 		double exponent;
-		for(int i=0; i < Tobservations.size(); i++){
+		for(int k=0; k < Tobservations.size(); k++){
 			for(int j = 0; j < MapLandmarks.size(); j++){
-				if(Tobservations[i].id == MapLandmarks[j].id){
-					x_obs = Tobservations[i].x;
-					y_obs = Tobservations[i].y;
+				if(Tobservations[k].id == MapLandmarks[j].id){
+					x_obs = Tobservations[k].x;
+					y_obs = Tobservations[k].y;
 					mu_x = MapLandmarks[j].x;
 					mu_y = MapLandmarks[j].y;
+					cout<<"Found" << endl;
 					break;
 				}
 			}
