@@ -25,7 +25,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	//   x, y, theta and their uncertainties from GPS) and all weights to 1. 
 	// Add random Gaussian noise to each particle.
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
-	cout<<"Initialization: "<<endl;
+	//cout<<"Initialization: "<<endl;
 	default_random_engine gen;
 	
 	//The following lines creates a normal (Gaussian) distribution for x, y  and theta.
@@ -48,7 +48,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 		weights.push_back(1.0);
 	}
 	is_initialized = true;
-	cout<<"Particles Initialized "<<endl;
+	//cout<<"Particles Initialized "<<endl;
 	return;
 	
 }
@@ -60,7 +60,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	//  http://www.cplusplus.com/reference/random/default_random_engine/
 	default_random_engine gen;
 	
-	cout<<"Predictions: "<<endl;
+	//cout<<"Predictions: "<<endl;
 	
 	for(int i=0; i < num_particles; i++){
 		Particle p = particles[i];
@@ -82,9 +82,9 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		normal_distribution<double> dist_y(y, std_pos[1]);
 		normal_distribution<double> dist_theta(theta, std_pos[2]);
 		
-		p.x = dist_x(gen);
-		p.y = dist_y(gen);
-		p.theta = dist_theta(gen);
+		particles[i].x = dist_x(gen);
+		particles[i].y = dist_y(gen);
+		particles[i].theta = dist_theta(gen);
 		//p.theta = p.theta % ( 2*pi);
 		
 	}
@@ -98,18 +98,18 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	// NOTE: this method will NOT be called by the grading code. But you will probably find it useful to 
 	//   implement this method and use it as a helper during the updateWeights phase.
 		
-	cout<<"Data Assosciation: "<<endl;
+	//cout<<"Data Assosciation: "<<endl;
 	int index;
-	for(int i=0; i < predicted.size(); i++){
+	for(int i=0; i < observations.size(); i++){
 		double min = DBL_MAX;
-		for(int j=0; j < observations.size(); j++){
-			double d = dist(predicted[i].x, predicted[i].y, observations[j].x, observations[j].y);
+		for(int j=0; j < predicted.size(); j++){
+			double d = dist(predicted[j].x, predicted[j].y, observations[i].x, observations[i].y);
 			if(d < min){
 				min = d;
 				index = j;
-			}
+			} 
 		}
-		observations[index].id = predicted[i].id;
+		observations[i].id = predicted[index].id;
 		
 	}
 
@@ -129,7 +129,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   http://planning.cs.uiuc.edu/node99.html
 	
 	// Converting to Map coordinate system
-	cout<<"Update Weights: "<<endl;
+	//cout<<"Update Weights: "<<endl;
 	
 	for(int i=0; i < num_particles; i++){
 		Particle p = particles[i];
@@ -161,10 +161,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		
 		double sig_x= std_landmark[0];
 		double sig_y= std_landmark[1];
-		float x_obs;
-		float y_obs;
-		float mu_x;
-		float mu_y;
+		double x_obs;
+		double y_obs;
+		double mu_x;
+		double mu_y;
 		double final_weight = 1;
 		double weight;
 		double gauss_norm;
@@ -175,8 +175,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 					x_obs = Tobservations[k].x;
 					y_obs = Tobservations[k].y;
 					mu_x = MapLandmarks[j].x;
-					mu_y = MapLandmarks[j].y;
-					cout<<"Found" << endl;
+					mu_y = MapLandmarks[j].y;					
 					break;
 				}
 			}
@@ -192,7 +191,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			final_weight *= weight;
 		}
 		particles[i].weight = final_weight;
-		weights.push_back(final_weight);
+		weights[i] = final_weight;
 	}
 	
 }
@@ -201,10 +200,10 @@ void ParticleFilter::resample() {
 	// TODO: Resample particles with replacement with probability proportional to their weight. 
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
-	cout<<"Resample: "<<endl;
+	//cout<<"Resample: "<<endl;
 	
 	std::default_random_engine generator;
-	std::discrete_distribution<> distribution (weights.begin(), weights.end());	
+	std::discrete_distribution<> distribution(weights.begin(), weights.end());	
 	
 	std::vector<Particle> new_particles;
 	
